@@ -1,5 +1,10 @@
 # Parameter-Efficient Video Deepfake Detector — Training & Evaluation
 
+[![CI](https://github.com/romin4444/deepfake/actions/workflows/ci.yml/badge.svg)](https://github.com/romin4444/deepfake/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](requirements.txt)
+![GPU required for training](https://img.shields.io/badge/GPU-required%20for%20training-orange)
+
 A complete, runnable codebase for training and evaluating a **face/video
 deepfake detector** that helps identify manipulated media. Built around the
 2024–2026 cross-dataset SOTA recipe: a **frozen vision foundation backbone
