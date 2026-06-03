@@ -6,7 +6,13 @@ These tests run without a GPU and without heavy optional deps (open_clip,
 timm): the TinyBackbone fallback is used automatically when those are absent.
 Torch-dependent tests are skipped if torch is not installed.
 """
+from pathlib import Path
+
 import pytest
+
+# Absolute path to the default config — works regardless of CWD.
+_REPO_ROOT = Path(__file__).parent.parent
+_DEFAULT_CFG = str(_REPO_ROOT / "configs" / "default.yaml")
 
 # ---------------------------------------------------------------------------
 # Config (no torch dep)
@@ -15,7 +21,7 @@ import pytest
 def test_config_load_defaults(tmp_path):
     """Config loader returns correct types for default.yaml values."""
     from src.config import load_config
-    cfg = load_config("configs/default.yaml")
+    cfg = load_config(_DEFAULT_CFG)
     assert cfg.seed == 42
     assert cfg.model.lora_rank == 8
     assert cfg.train.epochs == 20
@@ -25,7 +31,7 @@ def test_config_load_defaults(tmp_path):
 def test_config_cli_override(tmp_path):
     """Dotted-key CLI overrides are applied and coerced correctly."""
     from src.config import load_config
-    cfg = load_config("configs/default.yaml", overrides=[
+    cfg = load_config(_DEFAULT_CFG, overrides=[
         "model.lora_rank=16",
         "train.epochs=5",
         "model.peft=none",
@@ -39,7 +45,7 @@ def test_config_cli_override(tmp_path):
 
 def test_config_missing_key_raises():
     from src.config import load_config
-    cfg = load_config("configs/default.yaml")
+    cfg = load_config(_DEFAULT_CFG)
     with pytest.raises(AttributeError):
         _ = cfg.nonexistent_key
 
@@ -79,7 +85,7 @@ torch = pytest.importorskip("torch", reason="torch not installed")
 def _cpu_cfg(tmp_path):
     """Minimal config that forces tiny_cnn + CPU."""
     from src.config import load_config
-    cfg = load_config("configs/default.yaml", overrides=[
+    cfg = load_config(_DEFAULT_CFG, overrides=[
         "device=cpu",
         "model.backbone=tiny_cnn",
         "model.pretrained=false",
@@ -120,7 +126,7 @@ def test_model_lora_reduces_trainable(tmp_path):
     qkv/proj layers so injection count is 0, but model still builds cleanly)."""
     from src.model import DeepfakeVideoDetector
     from src.config import load_config
-    cfg = load_config("configs/default.yaml", overrides=[
+    cfg = load_config(_DEFAULT_CFG, overrides=[
         "device=cpu",
         "model.backbone=tiny_cnn",
         "model.pretrained=false",
@@ -140,7 +146,7 @@ def test_model_temporal_variants(tmp_path):
     from src.model import DeepfakeVideoDetector
     from src.config import load_config
     for mode in ("mean", "gru", "attention"):
-        cfg = load_config("configs/default.yaml", overrides=[
+        cfg = load_config(_DEFAULT_CFG, overrides=[
             "device=cpu",
             "model.backbone=tiny_cnn",
             "model.pretrained=false",
