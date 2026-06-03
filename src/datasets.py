@@ -24,7 +24,7 @@ import torch
 from PIL import Image
 from torch.utils.data import Dataset
 
-from .augment import CompressionAugment, FixedDegrade
+from .augment import CompressionAugment
 
 
 class ResizeToTensorNormalize:

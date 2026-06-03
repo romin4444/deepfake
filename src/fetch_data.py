@@ -34,7 +34,6 @@ Examples
 """
 from __future__ import annotations
 import argparse
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -93,12 +92,14 @@ def list_sources():
 
 
 def kaggle_download(slug: str, out: str):
-    out = Path(out); out.mkdir(parents=True, exist_ok=True)
+    out = Path(out)
+    out.mkdir(parents=True, exist_ok=True)
     try:
         import kaggle  # noqa: F401
     except Exception:
-        print("Installing kaggle..."); _run([sys.executable, "-m", "pip",
-              "install", "--break-system-packages", "kaggle"])
+        print("Installing kaggle...")
+        _run([sys.executable, "-m", "pip", "install",
+              "--break-system-packages", "kaggle"])
     if slug.startswith("c/"):
         _run(["kaggle", "competitions", "download", "-c", slug[2:],
               "-p", str(out)])
@@ -109,12 +110,14 @@ def kaggle_download(slug: str, out: str):
 
 
 def hf_download(repo: str, out: str):
-    out = Path(out); out.mkdir(parents=True, exist_ok=True)
+    out = Path(out)
+    out.mkdir(parents=True, exist_ok=True)
     try:
         from huggingface_hub import snapshot_download
     except Exception:
-        print("Installing huggingface_hub..."); _run([sys.executable, "-m",
-              "pip", "install", "--break-system-packages", "huggingface_hub"])
+        print("Installing huggingface_hub...")
+        _run([sys.executable, "-m", "pip", "install",
+              "--break-system-packages", "huggingface_hub"])
         from huggingface_hub import snapshot_download
     p = snapshot_download(repo_id=repo, repo_type="dataset",
                           local_dir=str(out / repo.split("/")[-1]))
@@ -130,7 +133,8 @@ def main():
     args = ap.parse_args()
 
     if args.list or (not args.kaggle and not args.hf):
-        list_sources(); return
+        list_sources()
+        return
     if args.kaggle:
         kaggle_download(args.kaggle, args.out)
     if args.hf:

@@ -6,9 +6,6 @@ These tests run without a GPU and without heavy optional deps (open_clip,
 timm): the TinyBackbone fallback is used automatically when those are absent.
 Torch-dependent tests are skipped if torch is not installed.
 """
-import importlib
-import sys
-
 import pytest
 
 # ---------------------------------------------------------------------------

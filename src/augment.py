@@ -9,7 +9,6 @@ H.264 round-tripping when ffmpeg is available.
 from __future__ import annotations
 
 import io
-import os
 import random
 import shutil
 import subprocess

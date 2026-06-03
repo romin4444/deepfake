@@ -26,7 +26,9 @@ from .metrics import compute_metrics, aggregate_video, pretty
 
 def set_seed(s):
     import random
-    random.seed(s); np.random.seed(s); torch.manual_seed(s)
+    random.seed(s)
+    np.random.seed(s)
+    torch.manual_seed(s)
     torch.cuda.manual_seed_all(s)
 
 
@@ -72,7 +74,8 @@ def main():
 
     set_seed(cfg.seed)
     device = pick_device(cfg.device)
-    out = Path(cfg.output_dir); out.mkdir(parents=True, exist_ok=True)
+    out = Path(cfg.output_dir)
+    out.mkdir(parents=True, exist_ok=True)
     print(f"[train] device={device}  output={out}")
 
     train_loader, val_loader = make_loaders(cfg)
@@ -128,8 +131,10 @@ def main():
                 scaler.unscale_(opt)
                 nn.utils.clip_grad_norm_(model.trainable_parameters(),
                                          cfg.train.grad_clip)
-            scaler.step(opt); scaler.update()
-            running += loss.item(); gstep += 1
+            scaler.step(opt)
+            scaler.update()
+            running += loss.item()
+            gstep += 1
             if it % cfg.train.log_every == 0:
                 print(f"  e{epoch} it{it}/{steps_per_epoch} "
                       f"loss={loss.item():.4f} lr={lr:.2e}")

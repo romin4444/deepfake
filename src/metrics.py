@@ -32,7 +32,8 @@ def aggregate_video(video_ids, scores, labels):
 
 
 def compute_metrics(y_true, scores, threshold=0.5):
-    y_true = np.asarray(y_true); scores = np.asarray(scores)
+    y_true = np.asarray(y_true)
+    scores = np.asarray(scores)
     preds = (scores >= threshold).astype(int)
     out = {}
     # AUC/AP need both classes present

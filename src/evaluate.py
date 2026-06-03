@@ -35,8 +35,10 @@ def _infer(model, loader, device):
         out = model(clip.to(device))
         lg = out[:, 1] - out[:, 0]            # binary logit
         probs = torch.softmax(out, 1)[:, 1].cpu().numpy()
-        s.extend(probs.tolist()); y.extend(label.numpy().tolist())
-        v.extend(list(vid)); logits.extend(lg.cpu().numpy().tolist())
+        s.extend(probs.tolist())
+        y.extend(label.numpy().tolist())
+        v.extend(list(vid))
+        logits.extend(lg.cpu().numpy().tolist())
     return np.array(s), np.array(y), v, np.array(logits)
 
 
@@ -80,7 +82,8 @@ def main():
         # clean
         s, y, v, lg = _infer(model, _loader(cfg, [ds], "test"), device)
         if len(y) == 0:
-            print(f"  [skip] no data for {ds}"); continue
+            print(f"  [skip] no data for {ds}")
+            continue
         vy, vs = aggregate_video(v, s, y)
         m = compute_metrics(vy, vs, cfg.eval.threshold)
         entry["clean"] = m
