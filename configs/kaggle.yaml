@@ -1,0 +1,63 @@
+# kaggle.yaml — optimized for Kaggle notebook environment
+# Assumes data fetched to /kaggle/input/ and working dir is /kaggle/working/
+
+seed: 42
+device: cuda                # Kaggle gives GPU
+
+output_dir: /kaggle/working/outputs
+
+data:
+  # On Kaggle, input data is in /kaggle/input/
+  # Either mount an existing DFDC dataset or use fetch_data to download
+  root: /kaggle/working/data/frames   # extract_frames.py writes here
+  
+  # Recommended for Kaggle:
+  # - Train on DFDC (on Kaggle, multiple fakes)
+  # - Validate on DeepSpeak (different generation method)
+  # - Test on Deepfake-Eval-2024 (in-the-wild)
+  train_datasets: [dfdc]              # assumes /kaggle/input/dfdc or similar
+  val_datasets:   [deepspeak]         # from HuggingFace
+  test_datasets:  [deepfake_eval]     # in-the-wild robustness test
+  
+  image_size: 224
+  frames_per_clip: 8                  # 8 frames per video clip
+  num_workers: 4                      # Kaggle has ~4-8 CPUs available
+  
+  augment:
+    enabled: true
+    jpeg_quality: [40, 75, 95]        # compression robustness (core contribution)
+    h264_crf: []                      # skip CRF emulation (slow on CPU)
+    resize_scales: [0.5, 0.75, 1.0]
+    gaussian_noise_sigma: [0.0, 2.0, 4.0]
+    hflip_prob: 0.5
+
+model:
+  backbone: clip_vit_l14              # best generalization; downloads ~1GB
+  pretrained: true
+  freeze_backbone: true
+  peft: lora                          # LoRA for parameter efficiency
+  lora_rank: 8
+  lora_alpha: 16
+  lora_targets: [qkv, proj]
+  temporal: attention
+  temporal_layers: 2
+  dropout: 0.1
+  num_classes: 2
+
+train:
+  epochs: 15                          # Kaggle notebook timeout ~12h
+  batch_size: 8                       # smaller batch for GPU memory
+  lr: 2.0e-4
+  weight_decay: 0.05
+  warmup_epochs: 1
+  label_smoothing: 0.05
+  amp: true                           # mixed precision (faster on GPU)
+  grad_clip: 1.0
+  early_stop_patience: 3              # stop early if val doesn't improve
+  log_every: 10
+
+eval:
+  threshold: 0.5
+  video_level: true                   # aggregate frame scores per video
+  robustness_battery: true            # test JPEG/resize/noise sweep
+  calibrate: true                     # temperature scaling on val

@@ -1,0 +1,59 @@
+# fast8h.yaml — first-run config that fits a full cycle inside ~8 hours:
+#   download (~1h) + frame extraction (~1.5h) + train (~4h) + eval (~1h)
+# Uses the LATEST directly-downloadable datasets. Scale up later by raising
+# limits / epochs / removing time_budget_hours.
+
+seed: 42
+device: auto
+output_dir: /kaggle/working/outputs
+
+data:
+  root: /kaggle/working/data/frames
+  # First run: train on the image-warmup + genvideo subset, evaluate on the
+  # LATEST in-the-wild benchmark (deepfake_eval). Edit freely.
+  train_datasets: [faces140k]          # quick, reliable, image-level
+  val_datasets:   [faces140k]
+  # Multi-dataset evaluation — the point of this run:
+  test_datasets:  [deepfake_eval, genvideo100k, faces140k]
+  image_size: 224
+  frames_per_clip: 4                   # fewer frames -> faster (raise later)
+  num_workers: 2                       # Kaggle CPU is limited
+  augment:
+    enabled: true
+    jpeg_quality: [40, 75, 95]
+    h264_crf: [23, 30, 37]
+    resize_scales: [0.5, 0.75, 1.0]
+    gaussian_noise_sigma: [0.0, 2.0]
+    hflip_prob: 0.5
+
+model:
+  backbone: clip_vit_l14               # falls back to efficientnet_b4 if no net
+  pretrained: true
+  freeze_backbone: true
+  peft: lora
+  lora_rank: 8
+  lora_alpha: 16
+  lora_targets: [qkv, proj]
+  temporal: mean                       # cheapest aggregation for speed
+  temporal_layers: 1
+  dropout: 0.1
+  num_classes: 2
+
+train:
+  epochs: 8
+  batch_size: 16
+  lr: 3.0e-4
+  weight_decay: 0.05
+  warmup_epochs: 1
+  label_smoothing: 0.05
+  amp: true
+  grad_clip: 1.0
+  early_stop_patience: 3
+  log_every: 20
+  time_budget_hours: 6.0               # <-- auto-stops to leave time for eval
+
+eval:
+  threshold: 0.5
+  video_level: true
+  robustness_battery: true
+  calibrate: true

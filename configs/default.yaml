@@ -1,0 +1,61 @@
+# ======================================================================
+# Default configuration for the parameter-efficient face/video deepfake
+# detector. Override any field on the CLI, e.g.:
+#   python -m src.train --config configs/default.yaml model.lora_rank=16
+# ======================================================================
+
+seed: 42
+device: auto            # auto | cuda | cpu
+output_dir: outputs/run1
+
+data:
+  # Root that holds extracted-frame folders (see scripts/extract_frames.py)
+  root: data/frames
+  # Each dataset is a subfolder with real/ and fake/ subdirs of frame images,
+  # OR a manifest CSV (path,label,video_id,dataset) — see datasets.py.
+  manifest: null                 # if set, overrides root-based discovery
+  train_datasets: [faceforensics]
+  val_datasets:   [faceforensics]
+  test_datasets:  [celebdf, dfdc]   # cross-dataset evaluation targets
+  image_size: 224
+  frames_per_clip: 8             # frames sampled per video for temporal head
+  num_workers: 4
+  # Compression / social-media augmentation (the robustness contribution)
+  augment:
+    enabled: true
+    jpeg_quality: [40, 75, 95]   # random JPEG re-encode
+    h264_crf: [23, 30, 37]       # emulated via ffmpeg if available
+    resize_scales: [0.5, 0.75, 1.0]
+    gaussian_noise_sigma: [0.0, 2.0, 4.0]
+    hflip_prob: 0.5
+
+model:
+  backbone: clip_vit_l14         # clip_vit_l14 | dinov2_vits14 | efficientnet_b4
+  pretrained: true
+  freeze_backbone: true          # PEFT: backbone frozen, adapters trainable
+  peft: lora                     # lora | layernorm | none
+  lora_rank: 8
+  lora_alpha: 16
+  lora_targets: [qkv, proj]      # attention projections to adapt
+  temporal: attention            # attention | mean | gru  (clip-level aggregation)
+  temporal_layers: 2
+  dropout: 0.1
+  num_classes: 2
+
+train:
+  epochs: 20
+  batch_size: 16                 # videos per batch (x frames_per_clip frames)
+  lr: 2.0e-4                     # adapters + head only
+  weight_decay: 0.05
+  warmup_epochs: 2
+  label_smoothing: 0.05
+  amp: true                      # mixed precision on GPU
+  grad_clip: 1.0
+  early_stop_patience: 5
+  log_every: 20
+
+eval:
+  threshold: 0.5
+  video_level: true              # aggregate frame scores per video
+  robustness_battery: true       # run compression/resize sweep at test time
+  calibrate: true                # temperature-scale probabilities on val
