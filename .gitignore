@@ -19,3 +19,6 @@ outputs/mock_run/
 # Editor/tooling caches
 .pytest_cache/
 .ruff_cache/
+
+# Third-party reference papers kept local only
+papers/
