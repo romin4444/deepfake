@@ -1,0 +1,14 @@
+{
+  "file": "/kaggle/input/datasets/bhaveshkumars/release-in-the-wild/release_in_the_wild/test/real/14313.wav",
+  "type": "audio",
+  "duration_s": 3.24,
+  "verdict": "NO SYNTHETIC SEGMENTS FOUND",
+  "fake_segments": [],
+  "windows_scored": 1,
+  "frac_windows_fake": 0.0,
+  "evidence_energy": 3.825,
+  "ood_flag": false,
+  "window_probs": [
+    0.021
+  ]
+}

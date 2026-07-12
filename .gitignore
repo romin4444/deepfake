@@ -10,3 +10,12 @@ data/frames/
 *.log
 .env
 .DS_Store
+
+# Large binary reports kept local only
+reports/*.pdf
+reports/*.pptx
+# Local mock run outputs
+outputs/mock_run/
+# Editor/tooling caches
+.pytest_cache/
+.ruff_cache/

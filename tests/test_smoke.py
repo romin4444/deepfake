@@ -39,7 +39,7 @@ def test_config_cli_override(tmp_path):
     ])
     assert cfg.model.lora_rank == 16
     assert cfg.train.epochs == 5
-    assert cfg.model.peft == "none"
+    assert cfg.model.peft is None
     assert cfg.train.amp is False
 
 

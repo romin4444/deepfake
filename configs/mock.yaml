@@ -1,0 +1,50 @@
+# configs/mock.yaml — optimized configuration for CPU mock run
+
+seed: 42
+device: cpu
+output_dir: outputs/mock_run
+
+data:
+  root: data/frames
+  manifest: null
+  train_datasets: [mock_dataset]
+  val_datasets:   [mock_dataset]
+  test_datasets:  [mock_dataset]
+  image_size: 224
+  frames_per_clip: 8
+  num_workers: 0
+  augment:
+    enabled: true
+    jpeg_quality: [40, 75, 95]
+    h264_crf: []                 # disable ffmpeg H264 on CPU test
+    resize_scales: [0.5, 0.75, 1.0]
+    gaussian_noise_sigma: [0.0, 2.0]
+    hflip_prob: 0.5
+
+model:
+  backbone: tiny_cnn
+  pretrained: false
+  freeze_backbone: false
+  peft: none
+  temporal: mean
+  temporal_layers: 1
+  dropout: 0.1
+  num_classes: 2
+
+train:
+  epochs: 2
+  batch_size: 2
+  lr: 1.0e-3
+  weight_decay: 0.01
+  warmup_epochs: 1
+  label_smoothing: 0.05
+  amp: false                     # CPU doesn't use float16 AMP
+  grad_clip: 1.0
+  early_stop_patience: 3
+  log_every: 1
+
+eval:
+  threshold: 0.5
+  video_level: true
+  robustness_battery: true
+  calibrate: true

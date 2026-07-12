@@ -1,0 +1,19 @@
+==================================================================
+FORENSIC LOCALIZATION REPORT (decision-support, not legal proof)
+==================================================================
+file      : /kaggle/input/datasets/bhaveshkumars/release-in-the-wild/release_in_the_wild/test/real/14313.wav
+media     : audio   duration: 3.24s
+VERDICT   : NO SYNTHETIC SEGMENTS FOUND
+------------------------------------------------------------------
+No localized fake segments above threshold.
+------------------------------------------------------------------
+SCOPE & ERROR RATES (2026-07-05 run): audio model XLS-R+SLS trained on
+CVoiceFake + In-the-Wild (OFFICIAL split); adapted AUC 0.997 / EER 0.98%
+on held-out ITW test; best ZERO-SHOT cross-corpus audio AUC 0.744 (wav2vec2-
+BASE probe). Video model in-distribution AUC 0.942 / clip-level 0.980
+(DFDC-derived); cross-generator video performance NOT established (n=20,
+underpowered) and the 2nd-order temporal signal is near-chance in-dist
+(AUC 0.547) — segment timelines have NOT been validated against ground-
+truth boundaries (no AP@IoU). Novel 2026+ generators may evade detection;
+the OOD flag and abstention mitigate but do not eliminate this risk.
+A qualified human examiner must review before any consequential use.
