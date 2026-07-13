@@ -5,10 +5,21 @@ on:
     branches: [main]
   pull_request:
 
+# Least privilege: the workflow only reads the repo.
+permissions:
+  contents: read
+
+# Cancel superseded runs on the same ref (e.g. new push to a PR).
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.10", "3.12"]
 
@@ -19,6 +30,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: requirements.txt
 
       - name: Install dependencies
         run: |
@@ -33,3 +46,15 @@ jobs:
 
       - name: Test
         run: pytest tests/ -v
+
+      - name: Kaggle zero-data smoke path (mock dataset, CPU)
+        run: |
+          # Same commands as README "Quick start (no GPU)" — the zero-data path
+          # users are told to run on Kaggle to confirm the code works before
+          # wiring up a real dataset. No GPU, credentials, or downloads needed.
+          python scripts/create_mock_data.py
+          python -m src.train    --config configs/mock.yaml
+          python -m src.evaluate --config configs/mock.yaml --ckpt outputs/mock_run/best.pt
+
+      - name: Verify smoke artifacts
+        run: python scripts/check_smoke_outputs.py

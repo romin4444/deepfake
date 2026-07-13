@@ -33,19 +33,23 @@ pipeline with cross-dataset and robustness metrics.
 ## Quick start (no GPU, ~1 min)
 
 Verify the whole pipeline on a synthetic mock dataset — no downloads, no GPU.
-This is exactly what CI exercises.
+These are the exact commands the CI **Kaggle zero-data smoke path** job runs on
+every push and pull request (see [`.github/workflows/ci.yml`](.github/workflows/ci.yml)):
 
 ```bash
 pip install -r requirements.txt        # torch, numpy, scikit-learn, pillow, pyyaml, tqdm
 python scripts/create_mock_data.py     # writes data/frames/mock_dataset/...
 python -m src.train    --config configs/mock.yaml
 python -m src.evaluate --config configs/mock.yaml --ckpt outputs/mock_run/best.pt
+python scripts/check_smoke_outputs.py  # asserts the run produced valid artifacts
 ```
 
 You'll see a 2-epoch training run and an evaluation report (clean metrics +
-robustness battery) written to `outputs/mock_run/eval_report.json`. The mock
-config uses a tiny CNN backbone so it runs anywhere; swap in `configs/default.yaml`
-and a real dataset for actual training.
+robustness battery) written to `outputs/mock_run/eval_report.json`;
+`check_smoke_outputs.py` then verifies the checkpoint, per-epoch history, and
+report were produced correctly. The mock config uses a tiny CNN backbone so it
+runs anywhere; swap in `configs/default.yaml` and a real dataset for actual
+training.
 
 Run the tests:
 
