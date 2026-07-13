@@ -25,7 +25,7 @@ You have different options depending on what you want to optimize for:
 **Dataset:** 140k-real-and-fake-faces  
 **Size:** ~4 GB  
 **Use case:** Test the code, verify frame extraction works, sanity check  
-**Expected AUC:** ~85–92% (images, not video)  
+**Expected AUC (literature estimate):** ~0.85–0.92 (images, not video)  
 **Kaggle storage:** No problem  
 
 ```yaml
@@ -39,7 +39,7 @@ test_datasets: [140k_faces]
 **Dataset:** DFDC (sample subset, available on Kaggle)  
 **Size:** ~50–100 GB  
 **Use case:** Train on a realistic benchmark, test cross-dataset  
-**Expected AUC:** ~85–92% (depends on your training tricks)  
+**Expected AUC (literature estimate):** ~0.85–0.92 (depends on your training setup)  
 **Kaggle storage:** ~150 GB working (tight but doable with Kaggle+)  
 
 ```yaml
@@ -54,10 +54,10 @@ test_datasets: [celebdf, dfdc]   # or deepspeak if available
 **Validation:** DeepSpeak v2 (HuggingFace, different generation method)  
 **Test:** Deepfake-Eval-2024 (in-the-wild, ~45h video)  
 **Use case:** Prove compression robustness in real social-media scenarios  
-**Expected AUC:** 
-- Clean on DFDC: ~87–92%
-- Cross-dataset (DeepSpeak): ~75–85%
-- In-the-wild (Deepfake-Eval): ~65–80% (the *real* number)
+**Expected AUC (literature estimate):**
+- Clean on DFDC: ~0.87–0.92
+- Cross-dataset (DeepSpeak): ~0.75–0.85
+- In-the-wild (Deepfake-Eval): ~0.65–0.80 (the *real* number)
 
 **Storage:** ~300 GB (need Kaggle Pro/Teams)
 
@@ -100,17 +100,26 @@ test_datasets: [deepfake_eval]
 
 ## Expected Results by Dataset
 
-Training on DFDC with our CLIP+LoRA+compression-augmentation setup:
+> **These are literature-derived expectations, not measured results from this
+> repository.** No trained checkpoint or benchmark run is bundled here. The
+> ranges below are drawn from published cross-dataset deepfake-detection papers
+> (see the citations in the top-level README) as a sanity-check target for your
+> own runs — treat them as ballpark, not a promise.
+
+Rough expectations for a CLIP+LoRA + compression-augmentation setup trained on DFDC:
 
 | Test Set | In-Domain | Cross-Dataset | Notes |
 |---|---|---|---|
-| DFDC → DFDC | ~94–97% AUC | – | saturated |
-| DFDC → Celeb-DF v2 | – | ~88–93% AUC | standard cross-dataset |
-| DFDC → 140k-faces | – | ~85–90% AUC | image-level |
-| DFDC → DeepSpeak v2 | – | ~75–85% AUC | different generation |
-| DFDC → Deepfake-Eval | – | ~65–80% AUC | *real in-the-wild* |
+| DFDC → DFDC | ~0.94–0.97 AUC | – | in-distribution, tends to saturate |
+| DFDC → Celeb-DF v2 | – | ~0.88–0.93 AUC | standard cross-dataset |
+| DFDC → 140k-faces | – | ~0.85–0.90 AUC | image-level |
+| DFDC → DeepSpeak v2 | – | ~0.75–0.85 AUC | different generation method |
+| DFDC → Deepfake-Eval | – | ~0.65–0.80 AUC | *real in-the-wild* |
 
-The **Deepfake-Eval-2024 number is the most honest** — it's what actually matters for deployment. Papers often report 95% but collapse to 70% in the wild.
+The **Deepfake-Eval-2024 number is the most honest** — it's what actually
+matters for deployment. Published models often report ~0.95 in-distribution but
+drop sharply in the wild (the Deepfake-Eval-2024 paper reports commercial
+detectors around ~0.78 on in-the-wild content).
 
 ---
 
@@ -188,7 +197,7 @@ Three things:
 2. **Cross-dataset evaluation on real benchmarks** — standard protocol, but honestly done: DFDC→Celeb-DF, then Deepfake-Eval-2024 (in-the-wild).
 3. **Parameter-efficient fine-tuning** — LoRA on frozen CLIP/DINOv2, matching the published SOTA family (Forensics Adapter, Effort, LNCLIP-DF) without needing massive GPUs.
 
-Expected outcome: ~85–92% on clean tests, ~65–80% on in-the-wild (honest number), with documented robustness to compression.
+Expected outcome (literature estimate, not measured here): ~0.85–0.92 AUC on clean tests, ~0.65–0.80 in-the-wild, with the training-time augmentation targeting compression robustness. Verify on your own runs.
 
 ---
 

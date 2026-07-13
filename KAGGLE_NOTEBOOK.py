@@ -7,8 +7,11 @@
 # ============================================================================
 # CELL 1: Setup & Install
 # ============================================================================
-!pip install -q -r requirements.txt open_clip_torch
-!pip install -q opencv-python-headless
+# Install deps directly (requirements.txt may not be on the path yet — see
+# CELL 2). open_clip is optional; the code falls back to a CNN backbone if it
+# is missing.
+!pip install -q torch torchvision timm open_clip_torch scikit-learn numpy \
+    pillow pyyaml tqdm opencv-python-headless
 
 # ============================================================================
 # CELL 2: Clone/Upload Code
@@ -155,7 +158,9 @@ result = subprocess.run([
     'python', '-m', 'src.evaluate',
     '--config', 'configs/kaggle.yaml',
     '--ckpt', '/kaggle/working/outputs/best.pt',
-    'data.test_datasets=[celebdf]',                 # or deepfake_eval if available
+    # Evaluate on whatever you extracted frames for above (e.g. dfdc). Add
+    # cross-dataset targets (celebdf, deepfake_eval) only if their frames exist.
+    'data.test_datasets=[dfdc]',
     'output_dir=/kaggle/working/outputs'
 ], capture_output=False)
 
@@ -195,10 +200,13 @@ if os.path.exists(eval_path):
 # ============================================================================
 # CELL 10: Save Results to Output
 # ============================================================================
-# Kaggle auto-saves /kaggle/working/outputs, but you can also:
-import shutil
-shutil.copy('/kaggle/working/outputs/best.pt', 
-            '/kaggle/output/best_checkpoint.pt')
-shutil.copy('/kaggle/working/outputs/eval_report.json', 
-            '/kaggle/output/eval_report.json')
-print("Results saved to /kaggle/output/")
+# Kaggle only persists files written under /kaggle/working. Copy the artifacts
+# into a dedicated folder there so they are easy to find in the Output tab.
+import os, shutil
+final_dir = '/kaggle/working/final'
+os.makedirs(final_dir, exist_ok=True)
+for name in ('best.pt', 'history.json', 'eval_report.json'):
+    src_path = f'/kaggle/working/outputs/{name}'
+    if os.path.exists(src_path):
+        shutil.copy(src_path, os.path.join(final_dir, name))
+print(f"Results saved to {final_dir} — download from the notebook Output tab.")
