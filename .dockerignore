@@ -1,0 +1,18 @@
+.git
+.github
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+# Large / non-runtime assets
+experiments/
+docs/
+reports/
+data/raw/
+data/frames/
+outputs/
+*.pt
+*.pth
+*.ckpt
+*.zip
+.DS_Store
