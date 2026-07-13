@@ -2,7 +2,6 @@
 create_mock_data.py — generate a tiny mock dataset under data/frames/mock_dataset
 with dummy frame images to run training and evaluation smoke tests.
 """
-import os
 from pathlib import Path
 from PIL import Image, ImageDraw
 
